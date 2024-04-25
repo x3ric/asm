@@ -1,0 +1,59 @@
+#!/bin/zsh
+# Building Script
+# Deps
+  check_install_dependency() {
+      local dependency=$1
+      local install_command=$2
+      if ! command -v $dependency &> /dev/null; then
+          echo "$dependency could not be found, installing it."
+          eval $install_command
+      fi
+  }
+  check_install_dependency "nasm" "sudo pacman -Sy nasm"
+  check_install_dependency "fzf" "sudo pacman -Sy fzf"
+# Fzf fn
+  fzf-splitted() {
+      if [[ -n "$TMUX" ]]
+      then
+          fzf --color=16 --reverse --ansi "$@"
+      else
+          fzf-tmux --color=16 -x --height ${FZF_TMUX_HEIGHT:-40%} --reverse --cycle --ansi "$@"
+      fi
+  }
+# Init
+  if [ -n "$1" ]; then
+    selected_file="$1.asm"
+    if [ ! -f "$selected_file" ]; then
+      echo "File not found: $selected_file"
+      exit 1
+    fi
+  else
+    selected_file=$(find . -maxdepth 1 -type f -name "*.asm" | fzf-splitted )
+  fi
+  if [ -z "$selected_file" ]; then
+    echo "No file selected. Exiting."
+    exit 1
+  fi
+  echo "Selected file: $selected_file"
+  file_name=$(basename "$selected_file" .asm)
+# Compile Libraries
+  LIB="$(pwd)/lib"
+  if grep -q "call print" "$selected_file"; then
+    nasm -f elf64 "$LIB/print.asm" -o "$LIB/print.o"
+  fi
+  if grep -q "call exit" "$selected_file"; then
+    nasm -f elf64 "$LIB/exit.asm" -o "$LIB/exit.o"
+  fi
+  if grep -q "call pwd" "$selected_file"; then
+    nasm -f elf64 "$LIB/pwd.asm" -o "$LIB/pwd.o"
+  fi
+# Compile Executable
+  object_files=("$LIB/"*.o)
+  nasm -f elf64 "$selected_file" -o "$file_name.o" || exit 1
+  ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -lc "$file_name.o" "${object_files[@]}" -o "$file_name" || exit 1
+# Clean and Run
+  rm -f "${object_files[@]}" "$file_name.o"
+  echo "Build successful. Executable '$file_name' created."
+  echo "Running $file_name."
+  ./"$file_name" "$2"
+  rm -f "$file_name"
