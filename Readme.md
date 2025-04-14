@@ -5,16 +5,14 @@ A runtime Assembly (Shellcode) Development and Analysis Tool
 
 ## Overview
 
-This is a powerful REPL (Read-Eval-Print Loop) tool for assembling, analyzing, and executing x86-64 assembly code and shellcode in real-time.
+This is a Assembly REPL (Read-Eval-Print Loop) tool for assembling, analyzing, and executing x86-64 assembly as form of shellcode.
 
 ## Features
 
-- Disassembly with syntax highlighting
-- Interactive shellcode development
-- Symbol resolution and analysis
-- File save/load functionality
-- Hex and Assembly input modes
-- Code execution
+- Symbol introspection with base address resolution  
+- Interactive shellcode development environment  
+- Symbol lookup and analysis tools  
+- File save/load asm/shellcode
 
 ## Installation
 
