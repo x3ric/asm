@@ -5,7 +5,7 @@ A runtime Assembly (Shellcode) Development and Analysis Tool
 
 ## Overview
 
-This is a Assembly REPL (Read-Eval-Print Loop) tool for assembling, analyzing, and executing x86-64 assembly code and shellcode in real-time.
+This is a powerful REPL (Read-Eval-Print Loop) tool for assembling, analyzing, and executing x86-64 assembly code and shellcode in real-time.
 
 ## Features
 
@@ -73,4 +73,3 @@ make run
 ## Shellcode Resources
 
 - [ShellStorm](https://shell-storm.org/shellcode/index.html)
-

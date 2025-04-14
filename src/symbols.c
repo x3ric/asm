@@ -284,46 +284,18 @@ uintptr_t get_raw_symbol(const char *name) {
     return addr;
 }
 
-
-uintptr_t extract_main_offset() {
-    uintptr_t offset = get_offset_from_main("show_help");
-    if (!offset) {
-        const char *alt_symbols[] = {"show_asm", "enter_hex", "sym_command", "run_code", NULL};
-        for (int i = 0; alt_symbols[i] != NULL; i++) {
-            offset = get_offset_from_main(alt_symbols[i]);
-            if (offset) break;
-        }
-    }  
-    return offset;
-}
-
-uintptr_t calculate_base_address() {
-    uintptr_t main_addr = (uintptr_t)main;
-    uintptr_t offset = extract_main_offset();
-    return main_addr - offset;
-}
-
 void generate_offset_shellcode(uintptr_t offset, char *output, size_t output_size) {
     snprintf(output, output_size, "\\x48\\x31\\xc0\\x66\\xb8%02x%02x\\xff\\xe0",
              (unsigned char)(offset & 0xFF),
              (unsigned char)((offset >> 8) & 0xFF));
 }
 
-void get_base_addr() {
-    uintptr_t main_offset = extract_main_offset();
-    uintptr_t main_addr = (uintptr_t)main;
-    base_addr = main_addr - main_offset;
-}
-
 void show_base_addr() {
-    if (!base_addr) {
-        get_base_addr();
-    }
-    printf("%sBase address:%s 0x%lx\n", B, C_C, base_addr );
+    printf("%sBase address:%s 0x%lx\n", B, C_C, symbols.base_addr );
 }
 
 void init_symbol_resolver() {
-    uintptr_t main_offset = extract_main_offset();
+    uintptr_t main_offset = get_offset_from_main("main");
     uintptr_t main_addr = (uintptr_t)main;
     symbols.base_addr = main_addr - main_offset;
     resolve_symbols_with_nm();
@@ -342,7 +314,7 @@ void dump_symbol_offsets() {
         free_symbol_table(symtab);
         return;
     }
-    uintptr_t base = calculate_base_address();
+    uintptr_t base = symbols.base_addr;
     printf("%sBase address: 0x%lx%s\n", B, base, C_0);
     printf("%s%-20s %-16s %-16s%s\n", B, "SYMBOL", "BASE+OFFSET", "OFFSET", C_0);
     printf("%-20s %-16s %-16s\n", "--------------------", "----------------", "----------------");
@@ -401,7 +373,7 @@ void sym_offset(void) {
             printf("Symbol %s not found\n", name);
         }
     } else {
-        uintptr_t offset = extract_main_offset();
+        uintptr_t offset = symbols.base_addr;
         printf("Main offset: 0x%lx\n", offset);
         printf("This is the value that replaces hardcoded 0x3d3e\n");
     }
@@ -423,9 +395,7 @@ void sym_raw(void) {
             char shellcode[128];
             generate_offset_shellcode(offset, shellcode, sizeof(shellcode));
             printf("Shellcode for offset 0x%lx: %s\n", offset, shellcode);
-            uintptr_t main_addr = (uintptr_t)main;
-            uintptr_t main_offset = extract_main_offset();
-            uintptr_t target_addr = (main_addr - main_offset) + offset;
+            uintptr_t target_addr = symbols.base_addr + offset;
             printf("Runtime address: 0x%lx\n", target_addr);
             printf("Copy to code buffer? [y/N]: ");
             char confirm = getchar();

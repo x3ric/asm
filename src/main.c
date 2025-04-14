@@ -72,7 +72,6 @@ cmd_t commands[] = {
 };
 
 int main(int argc, char **argv) {
-    get_base_addr();
     init_symbol_resolver();
     if (argc > 1) {
         if (argc > 2 && (strcasecmp(argv[1], "h") == 0 || strcasecmp(argv[1], "hex") == 0)) {
