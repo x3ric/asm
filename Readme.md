@@ -1,28 +1,26 @@
-
 # Asm
 
-A runtime Assembly (Shellcode) Development and Analysis Tool
+x86-64 shellcode assembly, analysis, and execution toolkit.
 
 ## Overview
 
-This is a Assembly REPL (Read-Eval-Print Loop) tool for assembling, analyzing, and executing x86-64 assembly as form of shellcode.
+Command-driven CLI for assembling, disassembling, inspecting, and executing x86-64 shellcode.
 
 ## Features
 
-- Symbol introspection with base address resolution  
-- Interactive shellcode development environment  
-- Symbol lookup and analysis tools  
-- File save/load asm/shellcode
+* Assemble from asm or hex
+* Disassemble and hex-dump bytes
+* Execute assembled shellcode
+* Symbol listing, grep, offsets and base-address resolution
+* Save/load asm or raw bytes
+* Toggle Intel/AT&T syntax
 
 ## Installation
 
 ### Prerequisites
 
-Ensure you have the following dependencies installed:
-
-- **Nasm**: Netwide Assembler
-- **Capstone**: Disassembler library
-- **Readline**: Command-line editing library
+* nasm
+* readline
 
 ### Compilation
 

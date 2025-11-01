@@ -18,7 +18,6 @@ typedef struct {
 
 symbol_table symbols = {0};
 int template_count = 0;
-
 int main(int argc, char **argv);
 
 static int init_elf_once() {
@@ -204,12 +203,10 @@ void generate_shellcode(const char *name, char *output, size_t output_size) {
     uintptr_t offset = get_offset_from_main(name);
     if (offset) {
         if (offset <= 0xFFFF) {
-            // Can use 16-bit mov for small offsets
             snprintf(output, output_size, "\\x48\\x31\\xc0\\x66\\xb8%02x%02x\\xff\\xe0",
                     (unsigned char)(offset & 0xFF),
                     (unsigned char)((offset >> 8) & 0xFF));
         } else {
-            // Use 32-bit mov for larger offsets (dynamic format)
             snprintf(output, output_size, "\\x48\\x31\\xc0\\x66\\xb8(64(base+\\x%02x\\x%02x))\\xff\\xe0",
                     (unsigned char)(offset & 0xFF),
                     (unsigned char)((offset >> 8) & 0xFF));
@@ -225,7 +222,6 @@ int parse_dynamic_shellcode(const char *input, unsigned char *output, size_t *ou
     while (*p) {
         while (*p && isspace(*p)) p++;
         if (!*p) break;
-        // Check for dynamic part pattern (64(base+OFFSET))
         if (strstr(p, "(64(base+") == p) {
             p += 9;
             unsigned int offset = 0;
@@ -245,12 +241,10 @@ int parse_dynamic_shellcode(const char *input, unsigned char *output, size_t *ou
             }
             while (*p && *p != '\\') p++;
             uintptr_t addr = base_address + offset;
-            // For 16-bit value
             if (bytes_read <= 2) {
                 output[(*output_len)++] = (unsigned char)(addr & 0xFF);
                 output[(*output_len)++] = (unsigned char)((addr >> 8) & 0xFF);
             } 
-            // For 32-bit value
             else if (bytes_read <= 4) {
                 output[(*output_len)++] = (unsigned char)(addr & 0xFF);
                 output[(*output_len)++] = (unsigned char)((addr >> 8) & 0xFF);
@@ -259,7 +253,6 @@ int parse_dynamic_shellcode(const char *input, unsigned char *output, size_t *ou
             }
             continue;
         }
-        // Handle normal hex format \xNN
         if (*p == '\\' && *(p+1) == 'x' && isxdigit(*(p+2)) && isxdigit(*(p+3))) {
             int hi = hex_to_val(*(p+2));
             int lo = hex_to_val(*(p+3));

