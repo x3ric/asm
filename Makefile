@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g
-LDFLAGS = -lelf -lreadline -ldl -ldw -ljson-c
+LDFLAGS = -lelf -lreadline -ldl
 TARGET = repl
 SOURCES = ./src/main.c
 ARGS = $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
